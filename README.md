@@ -10,15 +10,39 @@ Aplicación web para gestionar y controlar tus finanzas personales, llevando reg
 - **Filtrado**: Filtra por tipo de transacción (todas, ingresos, gastos)
 - **Vista agrupada**: Agrupa transacciones por categoría con totales
 - **Resumen visual**: Tarjetas con totales de ingresos, gastos y balance
-- **Almacenamiento local**: Los datos persisten usando localStorage
+- **Múltiples modos de almacenamiento**: Prisma+PostgreSQL, Supabase o localStorage
 - **Diseño responsivo**: Optimizado para móviles, tablets y escritorio
 
 ## Tecnologías
 
 - **Next.js 16** con App Router
 - **TypeScript** para type safety
+- **Prisma** ORM con patrón Entity/Repository
+- **Supabase** o **PostgreSQL** para base de datos
 - **Tailwind CSS** para estilos
 - **React Hooks** para gestión de estado
+
+## Modos de Almacenamiento
+
+La aplicación soporta tres modos:
+
+1. **🗄️ Prisma + PostgreSQL** (Recomendado para producción)
+   - Type-safety completo
+   - Entidades con métodos de negocio
+   - Migraciones automáticas
+   - API Routes en el servidor
+   - Ver `PRISMA_SETUP.md`
+
+2. **☁️ Supabase Cloud** (Más simple)
+   - Cliente directo desde el navegador
+   - Sin necesidad de API Routes
+   - Row Level Security integrado
+   - Ver `SUPABASE_SETUP.md`
+
+3. **💾 Almacenamiento Local** (Solo para desarrollo)
+   - Sin configuración
+   - Datos en localStorage del navegador
+   - No se sincronizan entre dispositivos
 
 ## Instalación
 

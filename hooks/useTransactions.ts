@@ -4,11 +4,15 @@ import { useState, useEffect } from 'react';
 import { Transaction, Summary } from '@/types';
 import { supabase } from '@/lib/supabase';
 
+// Detectar qué modo usar
 const SUPABASE_ENABLED = !!(
   supabase &&
   process.env.NEXT_PUBLIC_SUPABASE_URL &&
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
+
+// Si no hay Supabase, asumimos que usaremos Prisma vía API Routes
+const USE_API = !SUPABASE_ENABLED;
 
 export function useTransactions() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -20,7 +24,23 @@ export function useTransactions() {
   }, []);
 
   const loadTransactions = async () => {
-    if (SUPABASE_ENABLED && supabase) {
+    // Modo 1: Usar API Routes con Prisma
+    if (USE_API) {
+      try {
+        const response = await fetch('/api/transactions');
+        if (!response.ok) throw new Error('Error al cargar transacciones');
+
+        const data = await response.json();
+        setTransactions(data);
+        localStorage.setItem('transactions', JSON.stringify(data));
+      } catch (err) {
+        console.error('Error loading from API:', err);
+        setError('Error al cargar desde la base de datos. Usando datos locales.');
+        loadFromLocalStorage();
+      }
+    }
+    // Modo 2: Usar Supabase directamente
+    else if (SUPABASE_ENABLED && supabase) {
       try {
         const { data, error } = await supabase
           .from('transactions')
@@ -38,7 +58,9 @@ export function useTransactions() {
         setError('Error al cargar desde la base de datos. Usando datos locales.');
         loadFromLocalStorage();
       }
-    } else {
+    }
+    // Modo 3: Solo localStorage
+    else {
       loadFromLocalStorage();
     }
     setIsLoaded(true);
@@ -52,19 +74,47 @@ export function useTransactions() {
   };
 
   useEffect(() => {
-    if (isLoaded && !SUPABASE_ENABLED) {
+    if (isLoaded && !SUPABASE_ENABLED && !USE_API) {
       localStorage.setItem('transactions', JSON.stringify(transactions));
     }
   }, [transactions, isLoaded]);
 
   const addTransaction = async (transaction: Omit<Transaction, 'id' | 'fecha_creacion'>) => {
-    const newTransaction: Transaction = {
-      ...transaction,
-      id: crypto.randomUUID(),
-      fecha_creacion: Date.now(),
-    };
+    // Modo 1: Usar API Routes con Prisma
+    if (USE_API) {
+      try {
+        const response = await fetch('/api/transactions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(transaction),
+        });
 
-    if (SUPABASE_ENABLED && supabase) {
+        if (!response.ok) throw new Error('Error al crear transacción');
+
+        const newTransaction = await response.json();
+        setTransactions(prev => [newTransaction, ...prev]);
+        setError(null);
+      } catch (err) {
+        console.error('Error adding via API:', err);
+        setError('Error al guardar. Los cambios solo se guardarán localmente.');
+
+        const newTransaction: Transaction = {
+          ...transaction,
+          id: crypto.randomUUID(),
+          fecha_creacion: Date.now(),
+        };
+        setTransactions(prev => [newTransaction, ...prev]);
+        localStorage.setItem('transactions', JSON.stringify([newTransaction, ...transactions]));
+      }
+    }
+    // Modo 2: Usar Supabase directamente
+    else if (SUPABASE_ENABLED && supabase) {
+      const newTransaction: Transaction = {
+        ...transaction,
+        id: crypto.randomUUID(),
+        fecha_creacion: Date.now(),
+      };
+
       try {
         const { error } = await supabase
           .from('transactions')
@@ -80,13 +130,37 @@ export function useTransactions() {
         setTransactions(prev => [newTransaction, ...prev]);
         localStorage.setItem('transactions', JSON.stringify([newTransaction, ...transactions]));
       }
-    } else {
+    }
+    // Modo 3: Solo localStorage
+    else {
+      const newTransaction: Transaction = {
+        ...transaction,
+        id: crypto.randomUUID(),
+        fecha_creacion: Date.now(),
+      };
       setTransactions(prev => [newTransaction, ...prev]);
     }
   };
 
   const deleteTransaction = async (id: string) => {
-    if (SUPABASE_ENABLED && supabase) {
+    // Modo 1: Usar API Routes con Prisma
+    if (USE_API) {
+      try {
+        const response = await fetch(`/api/transactions/${id}`, {
+          method: 'DELETE',
+        });
+
+        if (!response.ok) throw new Error('Error al eliminar transacción');
+
+        setTransactions(prev => prev.filter(t => t.id !== id));
+        setError(null);
+      } catch (err) {
+        console.error('Error deleting via API:', err);
+        setError('Error al eliminar de la base de datos.');
+      }
+    }
+    // Modo 2: Usar Supabase directamente
+    else if (SUPABASE_ENABLED && supabase) {
       try {
         const { error } = await supabase
           .from('transactions')
@@ -101,7 +175,9 @@ export function useTransactions() {
         console.error('Error deleting from Supabase:', err);
         setError('Error al eliminar de la base de datos.');
       }
-    } else {
+    }
+    // Modo 3: Solo localStorage
+    else {
       setTransactions(prev => prev.filter(t => t.id !== id));
     }
   };
@@ -122,6 +198,12 @@ export function useTransactions() {
     };
   };
 
+  const getStorageMode = (): string => {
+    if (USE_API) return 'prisma';
+    if (SUPABASE_ENABLED) return 'supabase';
+    return 'local';
+  };
+
   return {
     transactions,
     addTransaction,
@@ -130,5 +212,6 @@ export function useTransactions() {
     isLoaded,
     error,
     usingSupabase: SUPABASE_ENABLED,
+    storageMode: getStorageMode(),
   };
 }

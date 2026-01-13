@@ -6,7 +6,7 @@ import TransactionList from '@/components/TransactionList';
 import Summary from '@/components/Summary';
 
 export default function Home() {
-  const { transactions, addTransaction, deleteTransaction, getSummary, isLoaded, error, usingSupabase } = useTransactions();
+  const { transactions, addTransaction, deleteTransaction, getSummary, isLoaded, error, storageMode } = useTransactions();
 
   if (!isLoaded) {
     return (
@@ -30,11 +30,15 @@ export default function Home() {
           </p>
           <div className="mt-2 flex items-center justify-center gap-2">
             <span className={`text-xs px-2 py-1 rounded ${
-              usingSupabase
+              storageMode === 'prisma'
+                ? 'bg-blue-100 text-blue-800'
+                : storageMode === 'supabase'
                 ? 'bg-green-100 text-green-800'
                 : 'bg-yellow-100 text-yellow-800'
             }`}>
-              {usingSupabase ? '☁️ Sincronizado en la nube' : '💾 Guardado local'}
+              {storageMode === 'prisma' && '🗄️ Prisma + PostgreSQL'}
+              {storageMode === 'supabase' && '☁️ Supabase Cloud'}
+              {storageMode === 'local' && '💾 Almacenamiento Local'}
             </span>
           </div>
         </header>
