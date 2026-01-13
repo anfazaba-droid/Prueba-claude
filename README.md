@@ -1,36 +1,112 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Gestor de Gastos e Ingresos
 
-## Getting Started
+Aplicación web para gestionar y controlar tus finanzas personales, llevando registro de gastos e ingresos mensuales.
 
-First, run the development server:
+## Características
+
+- **Formulario de entrada**: Agrega transacciones especificando tipo (gasto/ingreso), monto, categoría, descripción y fecha
+- **Categorización automática**: Categorías predefinidas para gastos e ingresos
+- **Ordenamiento**: Ordena transacciones por fecha, monto o categoría
+- **Filtrado**: Filtra por tipo de transacción (todas, ingresos, gastos)
+- **Vista agrupada**: Agrupa transacciones por categoría con totales
+- **Resumen visual**: Tarjetas con totales de ingresos, gastos y balance
+- **Almacenamiento local**: Los datos persisten usando localStorage
+- **Diseño responsivo**: Optimizado para móviles, tablets y escritorio
+
+## Tecnologías
+
+- **Next.js 16** con App Router
+- **TypeScript** para type safety
+- **Tailwind CSS** para estilos
+- **React Hooks** para gestión de estado
+
+## Instalación
+
+1. Instala las dependencias:
+
+```bash
+npm install
+```
+
+2. Ejecuta el servidor de desarrollo:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. Abre [http://localhost:3000](http://localhost:3000) en tu navegador
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Uso
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Agregar Transacciones
 
-## Learn More
+1. Selecciona el tipo: Gasto o Ingreso
+2. Ingresa el monto
+3. Selecciona una categoría
+4. Agrega una descripción
+5. Selecciona la fecha
+6. Haz clic en "Agregar Gasto" o "Agregar Ingreso"
 
-To learn more about Next.js, take a look at the following resources:
+### Ordenar y Filtrar
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Ordenar por**: Fecha, Monto o Categoría
+- **Filtrar por**: Todas, Ingresos o Gastos
+- **Vista**: Lista o Agrupado por categoría
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Eliminar Transacciones
 
-## Deploy on Vercel
+Haz clic en el icono de papelera junto a cualquier transacción para eliminarla.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Estructura del Proyecto
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+├── app/
+│   ├── layout.tsx       # Layout principal
+│   ├── page.tsx         # Página principal
+│   └── globals.css      # Estilos globales
+├── components/
+│   ├── Summary.tsx            # Resumen de totales
+│   ├── TransactionForm.tsx    # Formulario de entrada
+│   ├── TransactionList.tsx    # Lista de transacciones
+│   └── TransactionItem.tsx    # Item individual
+├── hooks/
+│   └── useTransactions.ts     # Hook de estado
+└── types/
+    └── index.ts               # Definiciones de tipos
+```
+
+## Categorías
+
+### Gastos
+- Alimentación
+- Transporte
+- Vivienda
+- Servicios
+- Salud
+- Educación
+- Entretenimiento
+- Ropa
+- Otro
+
+### Ingresos
+- Salario
+- Freelance
+- Inversiones
+- Ventas
+- Otro
+
+## Scripts
+
+- `npm run dev` - Ejecuta el servidor de desarrollo
+- `npm run build` - Crea una build de producción
+- `npm start` - Ejecuta el servidor de producción
+- `npm run lint` - Ejecuta el linter
+
+## Build de Producción
+
+```bash
+npm run build
+npm start
+```
+
+La aplicación estará disponible en [http://localhost:3000](http://localhost:3000)
