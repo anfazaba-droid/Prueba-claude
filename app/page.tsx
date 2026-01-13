@@ -6,7 +6,7 @@ import TransactionList from '@/components/TransactionList';
 import Summary from '@/components/Summary';
 
 export default function Home() {
-  const { transactions, addTransaction, deleteTransaction, getSummary, isLoaded } = useTransactions();
+  const { transactions, addTransaction, deleteTransaction, getSummary, isLoaded, error, usingSupabase } = useTransactions();
 
   if (!isLoaded) {
     return (
@@ -28,7 +28,22 @@ export default function Home() {
           <p className="text-gray-600">
             Lleva el control de tus finanzas personales
           </p>
+          <div className="mt-2 flex items-center justify-center gap-2">
+            <span className={`text-xs px-2 py-1 rounded ${
+              usingSupabase
+                ? 'bg-green-100 text-green-800'
+                : 'bg-yellow-100 text-yellow-800'
+            }`}>
+              {usingSupabase ? '☁️ Sincronizado en la nube' : '💾 Guardado local'}
+            </span>
+          </div>
         </header>
+
+        {error && (
+          <div className="mb-6 bg-orange-50 border-l-4 border-orange-500 p-4 rounded">
+            <p className="text-orange-800 text-sm">{error}</p>
+          </div>
+        )}
 
         <Summary summary={summary} />
 
